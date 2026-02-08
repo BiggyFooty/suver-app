@@ -164,6 +164,9 @@ class _AdOverlayState extends State<AdOverlay> {
     'assets/ads/SuVerAdsmascot.mp4',
   ];
 
+  // Static variable to track the last played video index across instances
+  static int _lastVideoIndex = -1;
+
   @override
   void initState() {
     super.initState();
@@ -171,9 +174,9 @@ class _AdOverlayState extends State<AdOverlay> {
   }
 
   Future<void> _initializeVideo() async {
-    // Pick random video
-    final random = Random();
-    _currentVideoPath = _adVideos[random.nextInt(_adVideos.length)];
+    // Play the next video in sequence
+    _lastVideoIndex = (_lastVideoIndex + 1) % _adVideos.length;
+    _currentVideoPath = _adVideos[_lastVideoIndex];
     
     _controller = VideoPlayerController.asset(_currentVideoPath);
     
