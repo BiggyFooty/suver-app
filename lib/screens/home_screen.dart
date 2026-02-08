@@ -81,8 +81,10 @@ class _HomeScreenState extends State<HomeScreen> {
         
         // Main content
         SafeArea(
+          bottom: false,
           child: SingleChildScrollView(
-            padding: const EdgeInsets.only(bottom: 100),
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.only(bottom: 120),
             child: Column(
               children: [
                 _buildHeader(),

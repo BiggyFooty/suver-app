@@ -23,6 +23,7 @@ class AchievementsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CustomScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
       slivers: [
         // App Bar
         SliverAppBar(
@@ -30,10 +31,7 @@ class AchievementsScreen extends StatelessWidget {
           backgroundColor: AppColors.backgroundDark.withValues(alpha: 0.95),
           title: const Text('Başarılar', style: TextStyle(fontWeight: FontWeight.bold)),
           centerTitle: true,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () {},
-          ),
+          automaticallyImplyLeading: false,
           actions: [
             IconButton(
               icon: const Icon(Icons.more_horiz),
@@ -43,7 +41,7 @@ class AchievementsScreen extends StatelessWidget {
         ),
         // Stats Grid
         SliverPadding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 120),
           sliver: SliverToBoxAdapter(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

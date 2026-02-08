@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:video_player/video_player.dart';
 import '../theme/app_theme.dart';
 
 class ScannerOverlay extends StatelessWidget {
@@ -151,13 +153,56 @@ class AdOverlay extends StatefulWidget {
 }
 
 class _AdOverlayState extends State<AdOverlay> {
+  VideoPlayerController? _controller;
   int _timeLeft = 15;
   Timer? _timer;
+  bool _isVideoReady = false;
+  String _currentVideoPath = '';
+
+  static const _adVideos = [
+    'assets/ads/BeyogluOtomatAds.mp4',
+    'assets/ads/SuVerAdsmascot.mp4',
+  ];
 
   @override
   void initState() {
     super.initState();
-    _startTimer();
+    _initializeVideo();
+  }
+
+  Future<void> _initializeVideo() async {
+    // Pick random video
+    final random = Random();
+    _currentVideoPath = _adVideos[random.nextInt(_adVideos.length)];
+    
+    _controller = VideoPlayerController.asset(_currentVideoPath);
+    
+    try {
+      await _controller!.initialize();
+      await _controller!.setLooping(false);
+      await _controller!.play();
+      
+      setState(() {
+        _isVideoReady = true;
+        // Use video duration or default 15s
+        _timeLeft = _controller!.value.duration.inSeconds > 0 
+            ? _controller!.value.duration.inSeconds 
+            : 15;
+      });
+      
+      _startTimer();
+      
+      // Listen for video completion
+      _controller!.addListener(() {
+        if (_controller!.value.position >= _controller!.value.duration) {
+          _timer?.cancel();
+          widget.onComplete();
+        }
+      });
+    } catch (e) {
+      // If video fails, fall back to countdown
+      _startTimer();
+    }
   }
 
   void _startTimer() {
@@ -174,6 +219,7 @@ class _AdOverlayState extends State<AdOverlay> {
   @override
   void dispose() {
     _timer?.cancel();
+    _controller?.dispose();
     super.dispose();
   }
 
@@ -182,45 +228,43 @@ class _AdOverlayState extends State<AdOverlay> {
     return Material(
       color: Colors.black,
       child: Stack(
+        fit: StackFit.expand,
         children: [
-          // Gradient background (simulating video)
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Colors.indigo.shade900,
-                  Colors.purple.shade900,
-                  Colors.black,
-                ],
+          // Video or gradient background
+          if (_isVideoReady && _controller != null)
+            Center(
+              child: AspectRatio(
+                aspectRatio: _controller!.value.aspectRatio,
+                child: VideoPlayer(_controller!),
+              ),
+            )
+          else
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Colors.indigo.shade900,
+                    Colors.purple.shade900,
+                    Colors.black,
+                  ],
+                ),
+              ),
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const CircularProgressIndicator(color: AppColors.primary),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Reklam yükleniyor...',
+                      style: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-          
-          // Ad content
-          Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.play_circle, size: 72, color: Colors.white.withValues(alpha: 0.5)),
-                const SizedBox(height: 16),
-                const Text(
-                  'Harika Su Markası',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Dünyanın en saf suyu...',
-                  style: TextStyle(color: Colors.white.withValues(alpha: 0.5)),
-                ),
-              ],
-            ),
-          ),
           
           // Timer badge
           Positioned(
@@ -230,7 +274,7 @@ class _AdOverlayState extends State<AdOverlay> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.5),
+                  color: Colors.black.withValues(alpha: 0.7),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
                 ),
@@ -246,43 +290,16 @@ class _AdOverlayState extends State<AdOverlay> {
           Positioned(
             bottom: 0,
             left: 0,
-            child: Container(
-              height: 4,
-              width: MediaQuery.of(context).size.width * ((15 - _timeLeft) / 15),
-              color: AppColors.primary,
-            ),
-          ),
-          
-          // Bottom info
-          Positioned(
-            bottom: 0,
-            left: 0,
             right: 0,
             child: Container(
-              padding: const EdgeInsets.all(32),
-              decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.9),
-              ),
-              child: Column(
-                children: [
-                  const Text(
-                    'SuVer ile Kazanın',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Reklam bitiminde suyunuz otomatik olarak verilecektir.',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppColors.textMuted,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
+              height: 4,
+              color: Colors.white.withValues(alpha: 0.2),
+              child: FractionallySizedBox(
+                alignment: Alignment.centerLeft,
+                widthFactor: _controller != null && _controller!.value.duration.inSeconds > 0
+                    ? _controller!.value.position.inSeconds / _controller!.value.duration.inSeconds
+                    : (15 - _timeLeft) / 15,
+                child: Container(color: AppColors.primary),
               ),
             ),
           ),
@@ -312,52 +329,54 @@ class _SuccessOverlayState extends State<SuccessOverlay> {
   Widget build(BuildContext context) {
     return Material(
       color: AppColors.primary.withValues(alpha: 0.95),
-      child: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 96,
-              height: 96,
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black26,
-                    blurRadius: 20,
-                    spreadRadius: 5,
-                  ),
-                ],
+      child: SafeArea(
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 96,
+                height: 96,
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 20,
+                      spreadRadius: 5,
+                    ),
+                  ],
+                ),
+                child: Icon(Icons.water_drop, size: 48, color: AppColors.primary),
               ),
-              child: Icon(Icons.water_drop, size: 48, color: AppColors.primary),
-            ),
-            const SizedBox(height: 24),
-            const Text(
-              'Su Hazırlanıyor!',
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+              const SizedBox(height: 24),
+              const Text(
+                'Su Hazırlanıyor!',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
               ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Afiyet Olsun.',
-              style: TextStyle(
-                fontSize: 18,
-                color: Colors.white.withValues(alpha: 0.8),
+              const SizedBox(height: 8),
+              Text(
+                'Afiyet Olsun.',
+                style: TextStyle(
+                  fontSize: 18,
+                  color: Colors.white.withValues(alpha: 0.8),
+                ),
               ),
-            ),
-            const SizedBox(height: 32),
-            Text(
-              '+10 Puan & 330ml Eklendi',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.white.withValues(alpha: 0.6),
+              const SizedBox(height: 32),
+              Text(
+                '+10 Puan & 330ml Eklendi',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.white.withValues(alpha: 0.6),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
