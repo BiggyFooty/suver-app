@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'theme/app_theme.dart';
 import 'screens/home_screen.dart';
@@ -5,6 +7,7 @@ import 'screens/map_screen.dart';
 import 'screens/achievements_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/notifications_screen.dart';
+import 'screens/expired_screen.dart';
 import 'widgets/bottom_nav.dart';
 import 'overlays/overlays.dart';
 
@@ -15,8 +18,22 @@ void main() {
 class SuverApp extends StatelessWidget {
   const SuverApp({super.key});
 
+  // Set expiration date here (iOS only)
+  static final DateTime _expirationDate = DateTime(2026, 2, 28);
+
   @override
   Widget build(BuildContext context) {
+    
+    // Check for expiration (iOS only, safe on web)
+    if (!kIsWeb && Platform.isIOS && DateTime.now().isAfter(_expirationDate)) {
+      return MaterialApp(
+        title: 'SuVer',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.darkTheme,
+        home: ExpiredScreen(expirationDate: _expirationDate),
+      );
+    }
+
     return MaterialApp(
       title: 'SuVer',
       debugShowCheckedModeBanner: false,
