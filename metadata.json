@@ -1,0 +1,7 @@
+{
+  "description": "SuVer - Smart City Water Dispensing App",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "name": "SuVer"
+}
