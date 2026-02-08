@@ -18,102 +18,87 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.only(bottom: 120),
-      child: Column(
-        children: [
-          _buildHeader(context),
-          _buildStatsPanel(context),
-          _buildBadgesPreview(context),
-          _buildSettingsMenu(context),
-          _buildLogoutButton(context),
-        ],
+    return SafeArea(
+      bottom: false,
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.only(bottom: 100),
+        child: Column(
+          children: [
+            _buildHeader(context),
+            _buildStatsPanel(context),
+            _buildBadgesPreview(context),
+            _buildSettingsMenu(context),
+            const SizedBox(height: 16),
+            _buildLogoutButton(context),
+            const SizedBox(height: 24),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildHeader(BuildContext context) {
-    return Stack(
-      children: [
-        // Gradient background
-        Container(
-          height: 150,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                AppColors.primary.withValues(alpha: 0.2),
-                Colors.transparent,
-              ],
-            ),
-          ),
-        ),
-        SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.only(top: 40),
-            child: Column(
-              children: [
-                // Avatar
-                Stack(
-                  children: [
-                    Container(
-                      width: 96,
-                      height: 96,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: AppColors.surfaceHighlight,
-                        border: Border.all(color: AppColors.backgroundDark, width: 4),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.3),
-                            blurRadius: 20,
-                          ),
-                        ],
-                      ),
-                      child: Icon(Icons.person, size: 48, color: Colors.white.withValues(alpha: 0.5)),
-                    ),
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: Container(
-                        width: 32,
-                        height: 32,
-                        decoration: BoxDecoration(
-                          color: AppColors.primary,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: AppColors.backgroundDark, width: 4),
-                        ),
-                        child: const Icon(Icons.edit, size: 12, color: Colors.white),
-                      ),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+      child: Column(
+        children: [
+          // Avatar
+          Stack(
+            children: [
+              Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.surfaceHighlight,
+                  border: Border.all(color: AppColors.backgroundDark, width: 3),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.3),
+                      blurRadius: 15,
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
-                const Text('Ahmet Yılmaz', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                Text('@ahmetyilmaz', style: TextStyle(fontSize: 14, color: AppColors.primary, fontWeight: FontWeight.w500)),
-                const SizedBox(height: 4),
-                Text('Üyelik: 15 Ocak 2026', style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
-              ],
-            ),
+                child: Icon(Icons.person, size: 40, color: Colors.white.withValues(alpha: 0.5)),
+              ),
+              Positioned(
+                bottom: 0,
+                right: 0,
+                child: Container(
+                  width: 28,
+                  height: 28,
+                  decoration: BoxDecoration(
+                    color: AppColors.primary,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: AppColors.backgroundDark, width: 3),
+                  ),
+                  child: const Icon(Icons.edit, size: 10, color: Colors.white),
+                ),
+              ),
+            ],
           ),
-        ),
-      ],
+          const SizedBox(height: 12),
+          const Text('Ahmet Yılmaz', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text('@ahmetyilmaz', style: TextStyle(fontSize: 13, color: AppColors.primary, fontWeight: FontWeight.w500)),
+          const SizedBox(height: 4),
+          Text('Üyelik: 15 Ocak 2026', style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
+        ],
+      ),
     );
   }
 
   Widget _buildStatsPanel(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(20),
       child: GlassPanel(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
         child: Row(
           children: [
             Expanded(child: _StatItem(value: '${waterSaved.toStringAsFixed(1)}L', label: 'Su Tasarrufu')),
-            Container(width: 1, height: 40, color: Colors.white.withValues(alpha: 0.1)),
+            Container(width: 1, height: 32, color: Colors.white.withValues(alpha: 0.1)),
             Expanded(child: _StatItem(value: 'Level $level', label: 'Üyelik')),
-            Container(width: 1, height: 40, color: Colors.white.withValues(alpha: 0.1)),
+            Container(width: 1, height: 32, color: Colors.white.withValues(alpha: 0.1)),
             Expanded(child: _StatItem(value: '$points', label: 'Puan')),
           ],
         ),
@@ -123,16 +108,21 @@ class ProfileScreen extends StatelessWidget {
 
   Widget _buildBadgesPreview(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Son Rozetler', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              const Text('Son Rozetler', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
               TextButton(
                 onPressed: () {},
-                child: Text('Tümünü Gör', style: TextStyle(color: AppColors.primary, fontSize: 12)),
+                style: TextButton.styleFrom(
+                  padding: EdgeInsets.zero,
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                child: Text('Tümünü Gör', style: TextStyle(color: AppColors.primary, fontSize: 11)),
               ),
             ],
           ),
@@ -152,22 +142,22 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Widget _buildSettingsMenu(BuildContext context) {
+    // Removed payment-related item
     final menuItems = [
       {'icon': Icons.person, 'title': 'Hesap Bilgileri', 'desc': 'Profil ve kişisel bilgiler', 'color': Colors.blue},
       {'icon': Icons.notifications, 'title': 'Bildirimler', 'desc': 'Uygulama bildirim ayarları', 'color': Colors.amber, 'action': onOpenNotifications},
-      {'icon': Icons.credit_card, 'title': 'Ödeme Yöntemleri', 'desc': 'Kayıtlı kartlar ve cüzdan', 'color': Colors.green},
       {'icon': Icons.language, 'title': 'Dil Seçimi', 'desc': 'Türkçe', 'color': Colors.purple},
       {'icon': Icons.help, 'title': 'Yardım & Destek', 'desc': 'SSS ve iletişim', 'color': Colors.orange},
       {'icon': Icons.policy, 'title': 'Gizlilik Politikası', 'desc': 'Kullanım koşulları', 'color': Colors.cyan},
     ];
 
     return Padding(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Ayarlar', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-          const SizedBox(height: 12),
+          const Text('Ayarlar', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+          const SizedBox(height: 10),
           ...menuItems.map((item) => _SettingsMenuItem(
             icon: item['icon'] as IconData,
             title: item['title'] as String,
@@ -182,16 +172,20 @@ class ProfileScreen extends StatelessWidget {
 
   Widget _buildLogoutButton(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-      child: GlassPanel(
-        borderColor: Colors.red.withValues(alpha: 0.2),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.logout, color: Colors.red, size: 20),
-            const SizedBox(width: 8),
-            const Text('Çıkış Yap', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
-          ],
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: GestureDetector(
+        onTap: () {},
+        child: GlassPanel(
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          borderColor: Colors.red.withValues(alpha: 0.2),
+          child: const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.logout, color: Colors.red, size: 18),
+              SizedBox(width: 8),
+              Text('Çıkış Yap', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 14)),
+            ],
+          ),
         ),
       ),
     );
@@ -208,9 +202,9 @@ class _StatItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 4),
-        Text(label.toUpperCase(), style: TextStyle(fontSize: 10, color: AppColors.textMuted, letterSpacing: 1)),
+        Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 2),
+        Text(label.toUpperCase(), style: TextStyle(fontSize: 9, color: AppColors.textMuted, letterSpacing: 0.5)),
       ],
     );
   }
@@ -226,12 +220,12 @@ class _BadgePreviewCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GlassPanel(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
       child: Column(
         children: [
-          Icon(icon, color: color, size: 24),
-          const SizedBox(height: 6),
-          Text(label, style: const TextStyle(fontSize: 10, color: Colors.white), textAlign: TextAlign.center),
+          Icon(icon, color: color, size: 22),
+          const SizedBox(height: 4),
+          Text(label, style: const TextStyle(fontSize: 9, color: Colors.white), textAlign: TextAlign.center),
         ],
       ),
     );
@@ -260,28 +254,29 @@ class _SettingsMenuItem extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         child: GlassPanel(
+          padding: const EdgeInsets.all(12),
           child: Row(
             children: [
               Container(
-                width: 40,
-                height: 40,
+                width: 36,
+                height: 36,
                 decoration: BoxDecoration(
                   color: AppColors.surfaceHighlight,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(18),
                 ),
-                child: Icon(icon, color: iconColor, size: 20),
+                child: Icon(icon, color: iconColor, size: 18),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14)),
-                    Text(desc, style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
+                    Text(title, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13)),
+                    Text(desc, style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
                   ],
                 ),
               ),
-              Icon(Icons.chevron_right, color: AppColors.textMuted),
+              Icon(Icons.chevron_right, color: AppColors.textMuted, size: 20),
             ],
           ),
         ),
